@@ -1,10 +1,22 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import { Router } from "./providers/router";
+import "@fontsource/inter";
+import { QueryClient, QueryClientProvider } from "react-query";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+    <QueryClientProvider client={queryClient}>
+      <Router />
+    </QueryClientProvider>
+  </React.StrictMode>
+);
