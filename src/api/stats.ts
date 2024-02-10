@@ -78,8 +78,8 @@ export const useAddUserStat = () => {
         user_id: user.id,
       });
     },
-    onSuccess: (_, input) => {
-      queryClient.invalidateQueries(["user_stats", input.stat_id]);
+    onSuccess: () => {
+      queryClient.invalidateQueries(["user_stats"]);
     },
   });
 };

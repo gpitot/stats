@@ -8,7 +8,7 @@ const Log: React.FC<{
   notes: string | null;
   createdAt: Date;
 }> = ({ name, units, notes, createdAt }) => (
-  <Card variant="outlined" sx={{ maxWidth: 400 }}>
+  <Card variant="outlined">
     <Typography level="h1">{name}</Typography>
     <Typography level="h2" fontSize={"xl"}>
       {units} reps
@@ -29,7 +29,7 @@ export const Logs: React.FC = () => {
     return <Typography>No logs yet</Typography>;
   }
   return (
-    <Stack spacing={2} sx={{ width: 300 }}>
+    <Stack spacing={2}>
       <Typography level="h1">Logbook</Typography>
       {data
         .filter((d) => d.stats?.name)

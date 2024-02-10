@@ -12,6 +12,7 @@ import {
   useSearchStatTypes,
 } from "api/stats";
 import { FormEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Add: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -20,6 +21,9 @@ export const Add: React.FC = () => {
   const { data } = useSearchStatTypes(query);
   const { mutate } = useAddUserStat();
   const { mutateAsync } = useAddNewStatType();
+
+  const navigate = useNavigate();
+
   const handleChange = (_: React.SyntheticEvent, value: string) => {
     setQuery(value);
   };
@@ -32,10 +36,11 @@ export const Add: React.FC = () => {
     }
     const units = parseInt(reps, 10);
     mutate({ stat_id: statId, units, notes: note });
+    navigate("/");
   };
 
   return (
-    <Stack spacing={2} sx={{ width: 300 }}>
+    <Stack spacing={2}>
       <form onSubmit={handleSubmit}>
         <FormLabel>Search for a stat</FormLabel>
         <Autocomplete
