@@ -13,6 +13,15 @@ import {
   Legend,
 } from "chart.js";
 import { uniq } from "lodash";
+import {
+  addDays,
+  addHours,
+  addMinutes,
+  addWeeks,
+  addYears,
+  format,
+  intervalToDuration,
+} from "date-fns";
 
 ChartJS.register(
   CategoryScale,
@@ -45,9 +54,86 @@ export const options = {
     },
   },
 };
+type ScaleTypes = "minute" | "hour" | "day" | "week" | "year";
+const getNearest = (d: Date, scale: ScaleTypes) => {
+  const date = new Date(d);
+  date.setMilliseconds(0);
+  if (scale === "minute") {
+    date.setSeconds(0);
+  }
+  if (scale === "hour") {
+    date.setMinutes(0);
+    date.setSeconds(0);
+  }
+  if (scale === "day") {
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+  }
+  if (scale === "week") {
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setDate(date.getDate() - date.getDay());
+  }
+  if (scale === "year") {
+    date.setMonth(0);
+    date.setDate(1);
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+  }
+  return date;
+};
 
+const getIntervalBetween = (start: Date, end: Date, scale: ScaleTypes) => {
+  const interval = intervalToDuration({
+    start: start,
+    end: end,
+  });
+  if (scale === "minute") {
+    return interval.minutes;
+  }
+  if (scale === "hour") {
+    return interval.hours;
+  }
+  if (scale === "day") {
+    return interval.days;
+  }
+  if (scale === "week") {
+    return interval.weeks;
+  }
+  if (scale === "year") {
+    return interval.years;
+  }
+  throw new Error("Invalid scale");
+};
 
-
+const getRange = (start: Date, end: Date, scale: ScaleTypes) => {
+  const interval = getIntervalBetween(start, end, scale);
+  if (!interval) {
+    return [start];
+  }
+  const range = [];
+  for (let i = -1; i <= interval + 1; i++) {
+    if (scale === "minute") {
+      range.push(addMinutes(start, i));
+    }
+    if (scale === "hour") {
+      range.push(addHours(start, i));
+    }
+    if (scale === "day") {
+      range.push(addDays(start, i));
+    }
+    if (scale === "week") {
+      range.push(addWeeks(start, i));
+    }
+    if (scale === "year") {
+      range.push(addYears(start, i));
+    }
+  }
+  return range;
+};
 
 const Graph: React.FC<{
   data: {
@@ -59,19 +145,34 @@ const Graph: React.FC<{
     } | null;
   }[];
   dataSetNames: string[] | null;
-}> = ({ data, dataSetNames }) => {
-  if (!dataSetNames) return null;
+  scale: ScaleTypes;
+}> = ({ data, dataSetNames, scale }) => {
+  if (!dataSetNames || dataSetNames.length === 0) return null;
   const selectedData = data.filter((d) => dataSetNames.includes(d.stats!.name));
-  const labels = uniq(selectedData.map((d) => d.created_at));
+  const dateScale = uniq(selectedData.map((d) => d.created_at))
+    .map((d) => getNearest(new Date(d), scale))
+    .sort();
+  const range = getRange(dateScale[0], dateScale[dateScale.length - 1], scale);
+
   const graphData = {
-    labels: uniq(labels.map((d) => new Date(d).toISOString())),
+    labels: range.map((d) => `${format(d, "k m")}`),
     datasets: dataSetNames.map((name) => {
       const filteredData = data.filter((d) => d.stats!.name === name);
-      const dataPoints = labels.map((label) => {
-        if (filteredData.some((d) => d.created_at === label)) {
-          return filteredData.find((d) => d.created_at === label)!.units;
-        }
-        return 0;
+
+      const dataPoints = range.map((date) => {
+        const currentDate = date.getTime();
+        const total = filteredData.reduce((acc, d) => {
+          const currentTime = getNearest(
+            new Date(d.created_at),
+            scale
+          ).getTime();
+
+          if (currentTime === currentDate) {
+            return acc + d.units;
+          }
+          return acc;
+        }, 0);
+        return total;
       });
 
       const color = stringToColour(name);
@@ -92,7 +193,6 @@ export const Graphs: React.FC = () => {
 
   const [selected, setSelected] = useState<string[] | null>(null);
   const handleSelectStat = (_: unknown, value: string[] | null) => {
-    console.log("value ", value);
     if (value) {
       setSelected(value);
     }
@@ -116,7 +216,7 @@ export const Graphs: React.FC = () => {
         options={autoCompleteOptions}
         onChange={handleSelectStat}
       />
-      <Graph data={data} dataSetNames={selected} />
+      <Graph data={data} dataSetNames={selected} scale="minute" />
     </Stack>
   );
 };
