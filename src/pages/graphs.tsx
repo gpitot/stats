@@ -1,4 +1,4 @@
-import { Autocomplete, Stack, Typography } from "@mui/joy";
+import { Autocomplete, Select, Stack, Typography, Option } from "@mui/joy";
 import { useGetUserStats } from "api/stats";
 import { useState } from "react";
 import { Line } from "react-chartjs-2";
@@ -22,6 +22,7 @@ import {
   format,
   intervalToDuration,
 } from "date-fns";
+import { Logs } from "pages/logs";
 
 ChartJS.register(
   CategoryScale,
@@ -151,11 +152,12 @@ const Graph: React.FC<{
   const selectedData = data.filter((d) => dataSetNames.includes(d.stats!.name));
   const dateScale = uniq(selectedData.map((d) => d.created_at))
     .map((d) => getNearest(new Date(d), scale))
-    .sort();
+    .reverse();
+
   const range = getRange(dateScale[0], dateScale[dateScale.length - 1], scale);
 
   const graphData = {
-    labels: range.map((d) => `${format(d, "k m")}`),
+    labels: range.map((d) => `${format(d, "MM/dd/yyyy k m")}`),
     datasets: dataSetNames.map((name) => {
       const filteredData = data.filter((d) => d.stats!.name === name);
 
@@ -198,6 +200,13 @@ export const Graphs: React.FC = () => {
     }
   };
 
+  const [scale, setScale] = useState<ScaleTypes>("day");
+  const handleSelectScale = (_: unknown, value: string | null) => {
+    if (value) {
+      setScale(value as ScaleTypes);
+    }
+  };
+
   if (!data && isLoading) {
     return <Typography>Loading...</Typography>;
   }
@@ -208,7 +217,7 @@ export const Graphs: React.FC = () => {
   const autoCompleteOptions = uniq(data.map((d) => d.stats!.name));
 
   return (
-    <Stack>
+    <Stack spacing={2}>
       <Typography level="h1">Graph</Typography>
       <Autocomplete
         type="search"
@@ -216,7 +225,14 @@ export const Graphs: React.FC = () => {
         options={autoCompleteOptions}
         onChange={handleSelectStat}
       />
-      <Graph data={data} dataSetNames={selected} scale="minute" />
+      <Select defaultValue="day" onChange={handleSelectScale}>
+        <Option value="hour">Hour</Option>
+        <Option value="day">Day</Option>
+        <Option value="week">Week</Option>
+      </Select>
+      <Graph data={data} dataSetNames={selected} scale={scale} />
+
+      <Logs data={data.filter((d) => selected?.includes(d.stats!.name))} />
     </Stack>
   );
 };

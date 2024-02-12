@@ -4,7 +4,7 @@ export const Base: React.FC = () => {
   return (
     <article>
       <header></header>
-      <main>
+      <main className="max-w-[500px] m-auto">
         <Outlet />
       </main>
       <footer
@@ -13,9 +13,8 @@ export const Base: React.FC = () => {
         left-0 w-full py-4 bg-blue-500 text-white 
         flex justify-around`}
       >
-        <Link to="/">Logs</Link>
+        <Link to="/">Home</Link>
         <Link to="add">Add</Link>
-        <Link to="graphs">Graphs</Link>
       </footer>
     </article>
   );

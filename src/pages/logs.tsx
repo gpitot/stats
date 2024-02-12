@@ -1,5 +1,4 @@
 import { Card, Stack, Typography } from "@mui/joy";
-import { useGetUserStats } from "api/stats";
 import React from "react";
 
 const Log: React.FC<{
@@ -20,14 +19,17 @@ const Log: React.FC<{
   </Card>
 );
 
-export const Logs: React.FC = () => {
-  const { data, isLoading } = useGetUserStats();
-  if (!data && isLoading) {
-    return <Typography>Loading...</Typography>;
-  }
-  if (!data) {
-    return <Typography>No logs yet</Typography>;
-  }
+export const Logs: React.FC<{
+  data: {
+    created_at: string;
+    units: number;
+    notes: string | null;
+    stats: {
+      name: string;
+    } | null;
+  }[];
+}> = ({ data }) => {
+  if (data.length === 0) return null;
   return (
     <Stack spacing={2}>
       <Typography level="h1">Logbook</Typography>
