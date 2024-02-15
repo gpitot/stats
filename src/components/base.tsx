@@ -1,6 +1,20 @@
-import { Link, Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { supabase } from "api/database";
 
 export const Base: React.FC = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/login");
+      }
+    })();
+  }, []);
+
   return (
     <article>
       <header></header>

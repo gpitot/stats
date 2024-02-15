@@ -5,6 +5,7 @@ import {
   Input,
   Stack,
   Textarea,
+  Typography,
 } from "@mui/joy";
 import {
   useAddNewStatType,
@@ -40,29 +41,36 @@ export const Add: React.FC = () => {
   };
 
   return (
-    <Stack spacing={2}>
-      <form onSubmit={handleSubmit}>
-        <FormLabel>Search for a stat</FormLabel>
-        <Autocomplete
-          type="search"
-          freeSolo
-          options={data?.map((d) => d.name) ?? []}
-          onInputChange={handleChange}
-        />
-        <FormLabel>How many reps?</FormLabel>
-        <Input
-          type="number"
-          value={reps}
-          onChange={(e) => setReps(e.target.value)}
-        />
-        <FormLabel>Any notes?</FormLabel>
-        <Textarea
-          minRows={10}
-          value={note}
-          onChange={(e) => setNotes(e.target.value)}
-        />
+    <form onSubmit={handleSubmit}>
+      <Stack spacing={2}>
+        <Typography level="h1">Add a stat</Typography>
+        <div>
+          <FormLabel>Search for a stat</FormLabel>
+          <Autocomplete
+            type="search"
+            freeSolo
+            options={data?.map((d) => d.name) ?? []}
+            onInputChange={handleChange}
+          />
+        </div>
+        <div>
+          <FormLabel>How many reps?</FormLabel>
+          <Input
+            type="number"
+            value={reps}
+            onChange={(e) => setReps(e.target.value)}
+          />
+        </div>
+        <div>
+          <FormLabel>Any notes?</FormLabel>
+          <Textarea
+            minRows={10}
+            value={note}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </div>
         <Button type="submit">Add stat</Button>
-      </form>
-    </Stack>
+      </Stack>
+    </form>
   );
 };
