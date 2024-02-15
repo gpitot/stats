@@ -18,7 +18,7 @@ export const Base: React.FC = () => {
   return (
     <article>
       <header></header>
-      <main className="max-w-[500px] m-auto">
+      <main className="max-w-[500px] m-auto p-4">
         <Outlet />
       </main>
       <footer
