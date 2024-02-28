@@ -23,6 +23,7 @@ import {
   intervalToDuration,
 } from "date-fns";
 import { Logs } from "pages/logs";
+import { Link } from "react-router-dom";
 
 ChartJS.register(
   CategoryScale,
@@ -233,6 +234,14 @@ export const Graphs: React.FC = () => {
       <Graph data={data} dataSetNames={selected} scale={scale} />
 
       <Logs data={data.filter((d) => selected?.includes(d.stats!.name))} />
+      <footer
+        className={`
+        fixed bottom-0 
+        left-0 w-full py-4 bg-blue-500 text-white 
+        flex justify-around`}
+      >
+        <Link to="add">Add a stat</Link>
+      </footer>
     </Stack>
   );
 };

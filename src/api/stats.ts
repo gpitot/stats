@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 export const useSearchStatTypes = (query: string) => {
   return useQuery({
     queryKey: ["stats", query],
-    enabled: query.length > 1,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("stats")
@@ -25,6 +24,9 @@ export const useAddNewStatType = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (name: string) => {
+      if (name.length < 1) {
+        throw new Error("Name must be at least 1 character long");
+      }
       const { data, error } = await supabase
         .from("stats")
         .insert({ name })
